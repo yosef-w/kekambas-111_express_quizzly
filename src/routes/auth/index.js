@@ -5,6 +5,7 @@ MainAuthRouter.route('/register')
         res.render('register');
     })
     .post((req, res) => {
+        console.log(req.body);
         res.send('Post Auth Router Register');
     })
 
