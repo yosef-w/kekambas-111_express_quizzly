@@ -1,8 +1,11 @@
 const express = require('express');
 const app = express();
 const port = 3000;
+const path = require('path')
 
 app.set('view engine', 'ejs');
+// Update the location of the folder for res.render to use (default is './views')
+app.set('views', path.join(__dirname, 'src/templates/views'));
 
 // Add logging middleware
 app.use((req, res, next) => {
@@ -11,7 +14,7 @@ app.use((req, res, next) => {
 })
 
 app.get('/', (req, res) => {
-    res.render('register', { username: 'bstanton'});
+    res.send('Hello World!');
 });
 
 // Import the function from the routes module
