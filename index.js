@@ -1,7 +1,13 @@
+const dotenv = require('dotenv');
+dotenv.config()
+console.log(process.env);
 const express = require('express');
 const app = express();
-const port = 3000;
+const port = process.env.PORT;
 const path = require('path')
+const { connectDB } = require('./src/db');
+
+connectDB();
 
 app.set('view engine', 'ejs');
 // Update the location of the folder for res.render to use (default is './views')
@@ -12,7 +18,7 @@ app.use(express.urlencoded( { extended: true }))
 
 // Add logging middleware
 app.use((req, res, next) => {
-    console.log(req.path);
+    console.log(req.method, req.path);
     next();
 })
 
