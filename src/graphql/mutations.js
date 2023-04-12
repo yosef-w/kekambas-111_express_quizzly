@@ -1,6 +1,8 @@
 const { GraphQLString } = require('graphql');
 const { User } = require('../models');
-bcrypt = require('bcrypt');
+const bcrypt = require('bcrypt');
+const { createJWT } = require('../util/auth');
+
 
 const register = {
     type: GraphQLString,
@@ -8,24 +10,27 @@ const register = {
     args: {
         username: { type: GraphQLString },
         email: { type: GraphQLString },
-        password: { type: GraphQLString },
+        password: { type: GraphQLString }
     },
-    async resolve (parent, args) {
+    async resolve(parent, args){
         const checkUser = await User.findOne({ email: args.email }).exec();
-        if (checkUser) {
+        if (checkUser){
             throw new Error("User with this email address already exists");
         }
 
         const { username, email, password } = args;
         const passwordHash = await bcrypt.hash(password, 10);
 
-        const user = new User({username, email, password: passwordHash });
+        const user = new User({ username, email, password: passwordHash });
 
         await user.save();
 
-        return user.username;
+        const token = createJWT(user);
+
+        return token
     }
 }
+
 
 module.exports = {
     register
