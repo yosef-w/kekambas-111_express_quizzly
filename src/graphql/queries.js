@@ -1,20 +1,37 @@
-// Import Type from graphql
-const { GraphQLList } = require('graphql');
-// Import our own created type
-const { UserType } = require('./types');
-// Import the User model so we can query MongoDB
+const { GraphQLString } = require('graphql');
 const { User } = require('../models');
+const bcrypt = require('bcrypt');
+const { createJWT } = require('../util/auth');
 
 
-const users = {
-    type: new GraphQLList(UserType),
-    description: 'Get all users from the database',
+const register = {
+    type: GraphQLString,
+    description: 'Register a new user',
+    args: {
+        username: { type: GraphQLString },
+        email: { type: GraphQLString },
+        password: { type: GraphQLString }
+    },
     async resolve(parent, args){
-        return await User.find()
+        const checkUser = await User.findOne({ email: args.email }).exec();
+        if (checkUser){
+            throw new Error("User with this email address already exists");
+        }
+
+        const { username, email, password } = args;
+        const passwordHash = await bcrypt.hash(password, 10);
+
+        const user = new User({ username, email, password: passwordHash });
+
+        await user.save();
+
+        const token = createJWT(user);
+
+        return token
     }
 }
 
 
 module.exports = {
-    users
+    register
 }
