@@ -1,24 +1,17 @@
-const jwt = require('jsonwebtoken');
+const MainAuthRouter = require('express').Router();
 
-const unprotectedRoutes = [
-    "/auth/register",
-    "/auth/login",
-    "/graphql"
-];
+MainAuthRouter.route('/register')
+    .get(require('./register.view'))
+    .post(require('./register'))
 
-const authenticate = (req, res, next) => {
-    try{
-        const token = req.cookies?.jwtoken || ""
-        const verified = jwt.verify(token, process.env.JWT_SECRET);
-        req.verifiedUser = verified.user;
-        next()
-    } catch (err){
-        if (unprotectedRoutes.includes(req.path)){
-            next();
-        } else {
-            res.redirect('/auth/login');
-        }
-    }
-}
 
-module.exports = { authenticate }
+MainAuthRouter.route('/login')
+    .get(require('./login.view'))
+    .post(require('./login'))
+
+
+MainAuthRouter.route('/logout')
+    .get(require('./logout'))
+
+
+module.exports = MainAuthRouter

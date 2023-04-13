@@ -1,24 +1,21 @@
-const jwt = require('jsonwebtoken');
+// Import built-in graphql types
+const { GraphQLObjectType, GraphQLID, GraphQLString } = require('graphql');
 
-const unprotectedRoutes = [
-    "/auth/register",
-    "/auth/login",
-    "/graphql"
-];
 
-const authenticate = (req, res, next) => {
-    try{
-        const token = req.cookies?.jwtoken || ""
-        const verified = jwt.verify(token, process.env.JWT_SECRET);
-        req.verifiedUser = verified.user;
-        next()
-    } catch (err){
-        if (unprotectedRoutes.includes(req.path)){
-            next();
-        } else {
-            res.redirect('/auth/login');
-        }
+// Define a custom User type
+const UserType = new GraphQLObjectType(
+    {
+        name: 'User',
+        description: 'User Type',
+        fields: () => ({
+            id: { type: GraphQLID },
+            username: { type: GraphQLString },
+            email: { type: GraphQLString }
+        })
     }
-}
+);
 
-module.exports = { authenticate }
+// Export the custom types
+module.exports = {
+    UserType
+};
